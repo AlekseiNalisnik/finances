@@ -6,10 +6,12 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RestController;
 
 import java.util.List;
 
-@Controller
+@RestController
 public class WalletController {
     @Autowired
     private WalletService walletService;
@@ -19,8 +21,18 @@ public class WalletController {
         return walletService.findAllWallets();
     }
 
-    @GetMapping("wallet/{id}")
+    @GetMapping("/wallet/{id}")
     public Wallet findWallet(@PathVariable Long id) {
         return walletService.findWalletById(id);
+    }
+
+    @GetMapping("/wallet-delete/{id}")
+    public void deleteWallet(@PathVariable Long id) {
+        walletService.deleteWallet(id);
+    }
+
+    @PostMapping("/wallet-create")
+    public void updateWallet(Wallet wallet) {
+        walletService.createWallet(wallet);
     }
 }

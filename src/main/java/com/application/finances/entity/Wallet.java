@@ -40,23 +40,23 @@ public class Wallet {
     @OneToMany
     private List<Transaction> transactions;
 
-    public void removeUser(User user) {
-        this.users.remove(user);
-        user.getWallets().remove(user);
-    }
-
-    public void addUser(User user) {
-        this.users.add(user);
-        user.getWallets().add(this);
-    }
-
-    public void removeTransaction(Transaction transaction) {
-        this.transactions.remove(transaction);
-        transaction.getWallet().removeTransaction(transaction);
-    }
-
-    public void addTransaction(Transaction transaction) {
-        this.transactions.add(transaction);
-        transaction.getWallet().addTransaction(transaction);
-    }
+//    public void removeUser(User user) {
+//        this.users.remove(user);
+//        user.getWallets().remove(user);
+//    }
+//
+//    public void addUser(User user) {
+//        this.users.add(user);
+//        user.getWallets().add(this);
+//    }
+//
+//    public void removeTransaction(Transaction transaction) {
+//        this.transactions.remove(transaction);
+//        transaction.getWallet().removeTransaction(transaction);
+//    }
+//
+//    public void addTransaction(Transaction transaction) {
+//        this.transactions.add(transaction);
+//        transaction.getWallet().addTransaction(transaction);
+//    }
 }
