@@ -1,54 +1,56 @@
 package com.application.finances.service;
 
-import com.application.finances.config.JwtService;
-import com.application.finances.controller.AuthenticationRequest;
-import com.application.finances.controller.AuthenticationResponse;
-import com.application.finances.controller.RegisterRequest;
-import com.application.finances.entity.Role;
-import com.application.finances.entity.User;
-import com.application.finances.repository.UserRepository;
+import com.application.finances.dto.JwtRequest;
+import com.application.finances.dto.JwtResponse;
+import com.application.finances.dto.RegistrationUserDto;
+import com.application.finances.exceptions.AppError;
+import com.application.finances.utils.JwtTokenUtils;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
-import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
 
 @Service
 @RequiredArgsConstructor
 public class AuthService {
-    private final UserRepository userRepository;
-    private final PasswordEncoder passwordEncoder;
-    private final JwtService jwtService;
+    private final UserService userService;
+    private final JwtTokenUtils jwtTokenUtils;
     private final AuthenticationManager authenticationManager;
 
-    public AuthenticationResponse register(RegisterRequest request) {
-        var user = User.builder()
-                .firstName(request.getFirstName())
-                .lastName(request.getLastName())
-                .email(request.getEmail())
-                .password(passwordEncoder.encode(request.getPassword()))
-                .role(Role.USER)
-                .build();
-        userRepository.save(user);
-        var jwtToken = jwtService.generateToken(user);
+    public ResponseEntity<?> createAuthToken(JwtRequest jwtRequest) {
+        try {
+            authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(
+                    jwtRequest.getUsername(), jwtRequest.getPassword()
+            ));
+        } catch (BadCredentialsException e) {
+            return new ResponseEntity<>(
+                    new AppError(HttpStatus.UNAUTHORIZED.value(), "Неверный логин или пароль"),
+                    HttpStatus.UNAUTHORIZED
+            );
+        }
 
-        return AuthenticationResponse.builder()
-                .token(jwtToken)
-                .build();
+        UserDetails userDetails = userService.loadUserByUsername(jwtRequest.getUsername());
+        String token = jwtTokenUtils.generateToken(userDetails);
+
+        return ResponseEntity.ok(new JwtResponse(token));
     }
 
-    public AuthenticationResponse authenticate(AuthenticationRequest request) {
-        authenticationManager.authenticate(
-            new UsernamePasswordAuthenticationToken(
-                request.getEmail(),
-                request.getPassword()
-            )
-        );
-        var user = userRepository.findByEmail(request.getEmail()).orElseThrow();
-        var jwtToken = jwtService.generateToken(user);
+    public ResponseEntity<?> createNewUser(RegistrationUserDto registrationUserDto) {
+        if (userService.findByUsername(registrationUserDto.getUsername()).isPresent()) {
+            return new ResponseEntity<>(
+                    new AppError(HttpStatus.BAD_REQUEST.value(), "Пользователь существует"),
+                    HttpStatus.BAD_REQUEST
+            );
+        }
+        userService.createNewUser(registrationUserDto);
 
-        return AuthenticationResponse.builder()
-                .token(jwtToken)
-                .build();
+        UserDetails userDetails = userService.loadUserByUsername(registrationUserDto.getUsername());
+        String token = jwtTokenUtils.generateToken(userDetails);
+
+        return ResponseEntity.ok(new JwtResponse(token));
     }
 }

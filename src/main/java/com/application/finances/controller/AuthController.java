@@ -1,5 +1,7 @@
 package com.application.finances.controller;
 
+import com.application.finances.dto.JwtRequest;
+import com.application.finances.dto.RegistrationUserDto;
 import com.application.finances.service.AuthService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
@@ -9,19 +11,18 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
-@RequestMapping("/api/finances/auth")
 @RequiredArgsConstructor
-public class AuthenticationController {
-
+@RequestMapping("/api/finances")
+public class AuthController {
     private final AuthService authService;
 
-    @PostMapping("/register")
-    public ResponseEntity<AuthenticationResponse> register(@RequestBody RegisterRequest request) {
-        return  ResponseEntity.ok(authService.register(request));
+    @PostMapping("/auth")
+    public ResponseEntity<?> createAuthToken(@RequestBody JwtRequest jwtRequest) {
+        return authService.createAuthToken(jwtRequest);
     }
 
-    @PostMapping("/authenticate")
-    public ResponseEntity<AuthenticationResponse> authenticate(@RequestBody AuthenticationRequest request) {
-        return  ResponseEntity.ok(authService.authenticate(request));
+    @PostMapping("/registration")
+    public ResponseEntity<?> createNewUser(@RequestBody RegistrationUserDto registrationUserDto) {
+        return authService.createNewUser(registrationUserDto);
     }
 }

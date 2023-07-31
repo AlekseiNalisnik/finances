@@ -1,12 +1,12 @@
 package com.application.finances.repository;
 
-import com.application.finances.entity.User;
+import com.application.finances.entity.Role;
 import org.springframework.data.repository.CrudRepository;
 import org.springframework.stereotype.Repository;
 
 import java.util.Optional;
 
 @Repository
-public interface UserRepository extends CrudRepository<User, Long> {
-    Optional<User> findByUsername(String username);
+public interface RoleRepository extends CrudRepository<Role, Long> {
+    Optional<Role> findByName(String name);
 }

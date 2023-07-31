@@ -3,19 +3,17 @@ package com.application.finances.controller;
 import com.application.finances.entity.Wallet;
 import com.application.finances.service.WalletService;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
 @RestController
+@RequestMapping("/api/finances")
 public class WalletController {
     @Autowired
     private WalletService walletService;
 
-    @GetMapping("/wallets")
+    @GetMapping("/admin/wallets")
     public List<Wallet> findAllWallets() {
         return walletService.findAllWallets();
     }

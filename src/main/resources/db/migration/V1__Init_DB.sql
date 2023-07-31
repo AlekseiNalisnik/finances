@@ -9,11 +9,28 @@ create table transactions (
     primary key (id)
 );
 
-create table users (
+create table roles (
     id bigserial not null,
-    name varchar(350) not null unique,
-    passhash varchar(255) not null unique,
+    name varchar(255) not null unique,
     primary key (id)
+);
+
+create sequence users_seq start with 1 increment by 50;
+
+create table users (
+    id bigserial not null unique,
+    first_name varchar(255) not null,
+    last_name varchar(255) not null,
+    password varchar(255) not null,
+    username varchar(255) not null unique,
+    primary key (id)
+);
+
+create table users_roles (
+    user_id bigint not null,
+    role_id bigint not null,
+    foreign key (user_id) references users (id),
+    foreign key (role_id) references roles (id)
 );
 
 create table users_wallets (
