@@ -40,13 +40,15 @@ public class UserService implements UserDetailsService {
         );
     }
 
-    public void createNewUser(RegistrationUserDto registrationUserDto) {
+    public User createNewUser(RegistrationUserDto registrationUserDto) {
         User user = new User();
+
         user.setUsername(registrationUserDto.getUsername());
         user.setFirstName(registrationUserDto.getFirstName());
         user.setLastName(registrationUserDto.getLastName());
         user.setPassword(passwordEncoder.encode(registrationUserDto.getPassword()));
         user.setRoles(List.of(roleService.getUserRole()));
-        userRepository.save(user);
+
+        return userRepository.save(user);
     }
 }

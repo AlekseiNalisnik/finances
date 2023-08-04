@@ -12,7 +12,8 @@ import java.util.Set;
 @Table(name = "users")
 public class User {
     @Id
-    @GeneratedValue(strategy = GenerationType.SEQUENCE)
+    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "users_generator")
+    @SequenceGenerator(name = "users_generator", sequenceName ="users_seq", allocationSize = 1)
     private Long id;
 
     @Column(name = "firstName")
@@ -34,6 +35,9 @@ public class User {
             inverseJoinColumns = @JoinColumn(name = "role_id")
     )
     private Collection<Role> roles;
+
+    @OneToOne(mappedBy = "user")
+    private Token token;
 
     @ManyToMany(mappedBy = "users", cascade = CascadeType.ALL)
     private Set<Wallet> wallets = new HashSet<Wallet>();

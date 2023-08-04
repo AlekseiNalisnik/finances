@@ -12,12 +12,14 @@ import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 
 @Service
 @RequiredArgsConstructor
 public class AuthService {
     private final UserService userService;
+    private final TokenService tokenService;
     private final JwtTokenUtils jwtTokenUtils;
     private final AuthenticationManager authenticationManager;
 
@@ -34,9 +36,15 @@ public class AuthService {
         }
 
         UserDetails userDetails = userService.loadUserByUsername(jwtRequest.getUsername());
-        String token = jwtTokenUtils.generateToken(userDetails);
+        String jwtToken = jwtTokenUtils.generateToken(userDetails);
 
-        return ResponseEntity.ok(new JwtResponse(token));
+        var user = userService
+            .findByUsername(jwtRequest.getUsername())
+            .orElseThrow(() -> new UsernameNotFoundException("User not found"));
+        tokenService.revokeUserToken(user);
+        tokenService.saveUserToken(user, jwtToken);
+
+        return ResponseEntity.ok(new JwtResponse(jwtToken));
     }
 
     public ResponseEntity<?> createNewUser(RegistrationUserDto registrationUserDto) {
@@ -46,11 +54,13 @@ public class AuthService {
                     HttpStatus.BAD_REQUEST
             );
         }
-        userService.createNewUser(registrationUserDto);
+        var savedUser = userService.createNewUser(registrationUserDto);
 
         UserDetails userDetails = userService.loadUserByUsername(registrationUserDto.getUsername());
-        String token = jwtTokenUtils.generateToken(userDetails);
+        String jwtToken = jwtTokenUtils.generateToken(userDetails);
 
-        return ResponseEntity.ok(new JwtResponse(token));
+        tokenService.saveUserToken(savedUser, jwtToken);
+
+        return ResponseEntity.ok(new JwtResponse(jwtToken));
     }
 }

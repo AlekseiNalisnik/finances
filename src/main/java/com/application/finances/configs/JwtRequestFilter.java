@@ -1,5 +1,6 @@
 package com.application.finances.configs;
 
+import com.application.finances.service.TokenService;
 import com.application.finances.utils.JwtTokenUtils;
 import io.jsonwebtoken.ExpiredJwtException;
 import io.jsonwebtoken.SignatureException;
@@ -23,12 +24,13 @@ import java.util.stream.Collectors;
 @Slf4j
 public class JwtRequestFilter extends OncePerRequestFilter {
     private final JwtTokenUtils jwtTokenUtils;
+    private final TokenService tokenService;
 
     @Override
     protected void doFilterInternal(
-            HttpServletRequest request,
-            HttpServletResponse response,
-            FilterChain filterChain
+        HttpServletRequest request,
+        HttpServletResponse response,
+        FilterChain filterChain
     ) throws ServletException, IOException {
         String authHeader = request.getHeader("Authorization");
         String username = null;
@@ -36,6 +38,7 @@ public class JwtRequestFilter extends OncePerRequestFilter {
 
         if (authHeader != null && authHeader.startsWith("Bearer ")) {
             jwt = authHeader.substring(7);
+
             try {
                 username = jwtTokenUtils.getUsername(jwt);
             } catch (ExpiredJwtException e) {
@@ -45,7 +48,11 @@ public class JwtRequestFilter extends OncePerRequestFilter {
             }
         }
 
-        if (username != null && SecurityContextHolder.getContext().getAuthentication() == null) {
+        if (
+            username != null &&
+            SecurityContextHolder.getContext().getAuthentication() == null &&
+            tokenService.isTokenValid(jwt)
+        ) {
             UsernamePasswordAuthenticationToken token = new UsernamePasswordAuthenticationToken(
                 username,
                 null,
