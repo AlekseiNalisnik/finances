@@ -1,7 +1,7 @@
 package com.application.finances.service;
 
-import com.application.finances.dto.JwtRequest;
-import com.application.finances.dto.JwtResponse;
+import com.application.finances.dto.JwtRequestDto;
+import com.application.finances.dto.JwtResponseDto;
 import com.application.finances.dto.RegistrationUserDto;
 import com.application.finances.exceptions.AppError;
 import com.application.finances.utils.JwtTokenUtils;
@@ -23,10 +23,10 @@ public class AuthService {
     private final JwtTokenUtils jwtTokenUtils;
     private final AuthenticationManager authenticationManager;
 
-    public ResponseEntity<?> createAuthToken(JwtRequest jwtRequest) {
+    public ResponseEntity<?> createAuthToken(JwtRequestDto jwtRequestDto) {
         try {
             authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(
-                    jwtRequest.getUsername(), jwtRequest.getPassword()
+                    jwtRequestDto.getUsername(), jwtRequestDto.getPassword()
             ));
         } catch (BadCredentialsException e) {
             return new ResponseEntity<>(
@@ -35,16 +35,16 @@ public class AuthService {
             );
         }
 
-        UserDetails userDetails = userService.loadUserByUsername(jwtRequest.getUsername());
+        UserDetails userDetails = userService.loadUserByUsername(jwtRequestDto.getUsername());
         String jwtToken = jwtTokenUtils.generateToken(userDetails);
 
         var user = userService
-            .findByUsername(jwtRequest.getUsername())
+            .findByUsername(jwtRequestDto.getUsername())
             .orElseThrow(() -> new UsernameNotFoundException("User not found"));
         tokenService.revokeUserToken(user);
         tokenService.saveUserToken(user, jwtToken);
 
-        return ResponseEntity.ok(new JwtResponse(jwtToken));
+        return ResponseEntity.ok(new JwtResponseDto(jwtToken));
     }
 
     public ResponseEntity<?> createNewUser(RegistrationUserDto registrationUserDto) {
@@ -61,6 +61,6 @@ public class AuthService {
 
         tokenService.saveUserToken(savedUser, jwtToken);
 
-        return ResponseEntity.ok(new JwtResponse(jwtToken));
+        return ResponseEntity.ok(new JwtResponseDto(jwtToken));
     }
 }

@@ -1,6 +1,6 @@
 package com.application.finances.controller;
 
-import com.application.finances.dto.JwtRequest;
+import com.application.finances.dto.JwtRequestDto;
 import com.application.finances.dto.RegistrationUserDto;
 import com.application.finances.service.AuthService;
 import lombok.RequiredArgsConstructor;
@@ -17,8 +17,8 @@ public class AuthController {
     private final AuthService authService;
 
     @PostMapping("/auth")
-    public ResponseEntity<?> createAuthToken(@RequestBody JwtRequest jwtRequest) {
-        return authService.createAuthToken(jwtRequest);
+    public ResponseEntity<?> createAuthToken(@RequestBody JwtRequestDto jwtRequestDto) {
+        return authService.createAuthToken(jwtRequestDto);
     }
 
     @PostMapping("/registration")
