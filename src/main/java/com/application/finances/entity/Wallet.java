@@ -1,9 +1,11 @@
 package com.application.finances.entity;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import org.hibernate.annotations.CreationTimestamp;
 
 import java.math.BigDecimal;
 import java.util.Date;
@@ -30,9 +32,12 @@ public class Wallet {
     @Column(name = "balance", nullable = false)
     private BigDecimal balance;
 
+    @CreationTimestamp
+    @Temporal(TemporalType.TIMESTAMP)
     @Column(name = "dateCreated", nullable = false)
     private Date dateCreated;
 
+    @JsonIgnore
     @ManyToMany(cascade = {CascadeType.ALL})
     @JoinTable(name = "users_wallets", joinColumns = {@JoinColumn(name = "wallet_id")}, inverseJoinColumns = {@JoinColumn(name = "user_id")})
     private Set<User> users = new HashSet<User>();
@@ -40,15 +45,15 @@ public class Wallet {
     @OneToMany
     private List<Transaction> transactions;
 
-//    public void removeUser(User user) {
-//        this.users.remove(user);
-//        user.getWallets().remove(user);
-//    }
-//
-//    public void addUser(User user) {
-//        this.users.add(user);
-//        user.getWallets().add(this);
-//    }
+    public void deleteUser(User user) {
+        this.users.remove(user);
+        user.getWallets().remove(user);
+    }
+
+    public void addUser(User user) {
+        this.users.add(user);
+        user.getWallets().add(this);
+    }
 //
 //    public void removeTransaction(Transaction transaction) {
 //        this.transactions.remove(transaction);

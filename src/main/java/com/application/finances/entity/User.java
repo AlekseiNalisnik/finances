@@ -36,8 +36,8 @@ public class User {
     )
     private Collection<Role> roles;
 
-    @OneToOne(mappedBy = "user")
-    private Token token;
+//    @OneToOne(mappedBy = "user")
+//    private Token token;
 
     @ManyToMany(mappedBy = "users", cascade = CascadeType.ALL)
     private Set<Wallet> wallets = new HashSet<Wallet>();
