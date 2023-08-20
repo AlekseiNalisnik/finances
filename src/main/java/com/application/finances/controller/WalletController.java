@@ -31,7 +31,7 @@ public class WalletController {
         return walletService.findWalletById(id);
     }
 
-    @GetMapping("/wallets/delete/{id}")
+    @DeleteMapping("/wallets/delete/{id}")
     public ResponseEntity<HttpStatus> deleteWallet(@PathVariable Long id, Principal principal) {
         walletService.deleteWallet(id, principal);
 

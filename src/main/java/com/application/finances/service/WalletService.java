@@ -1,18 +1,14 @@
 package com.application.finances.service;
 
-import com.application.finances.dto.JwtResponseDto;
 import com.application.finances.entity.Wallet;
 import com.application.finances.repository.UserRepository;
 import com.application.finances.repository.WalletRepository;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 
 import java.security.Principal;
 import java.util.List;
-import java.util.Set;
 
 @Service
 public class WalletService {
@@ -43,7 +39,16 @@ public class WalletService {
     }
 
     public void updateWallet(Wallet wallet) {
-        walletRepository.save(wallet);
+        Wallet walletForUpdate = walletRepository.findById(wallet.getId())
+            .orElseThrow(() -> new RuntimeException("wallet not found"));
+
+        walletForUpdate.setDescription(wallet.getDescription());
+        walletForUpdate.setName(wallet.getName());
+        walletForUpdate.setBalance(wallet.getBalance());
+        walletForUpdate.setDateCreated(wallet.getDateCreated());
+        walletForUpdate.setId(wallet.getId());
+
+        walletRepository.save(walletForUpdate);
     }
 
     public void deleteWallet(Long id, Principal principal) {
