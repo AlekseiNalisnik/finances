@@ -54,14 +54,4 @@ public class Wallet {
         this.users.add(user);
         user.getWallets().add(this);
     }
-//
-//    public void removeTransaction(Transaction transaction) {
-//        this.transactions.remove(transaction);
-//        transaction.getWallet().removeTransaction(transaction);
-//    }
-//
-//    public void addTransaction(Transaction transaction) {
-//        this.transactions.add(transaction);
-//        transaction.getWallet().addTransaction(transaction);
-//    }
 }

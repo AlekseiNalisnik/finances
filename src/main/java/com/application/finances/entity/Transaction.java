@@ -1,5 +1,7 @@
 package com.application.finances.entity;
 
+import com.application.finances.dictionaries.TransactionPurposeDictionary;
+import com.application.finances.enums.TransactionPaymentTypeEnum;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -18,21 +20,35 @@ public class Transaction {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(name = "name", length = 50, nullable = false, unique = true)
-    private String name;
+    @Column(name = "purchasePlace", length = 150, nullable = false)
+    private String purchasePlace;
 
-    @Column(name = "type", length = 50, nullable = false)
-    private String type;
+    @Column(name = "paymentType", nullable = false)
+    @Enumerated(EnumType.STRING)
+    private TransactionPaymentTypeEnum paymentType;
 
     @Column(name = "dateCreated", nullable = false)
     private Date dateCreated;
 
-    @Column(name = "category", length = 75, nullable = false)
-    private String category;
+    @ManyToOne
+    private TransactionPurposeDictionary purpose;
 
-    @Column(name = "money", nullable = false)
-    private BigDecimal money;
+    @Column(name = "price", nullable = false)
+    private BigDecimal price;
+
+    @Column(name = "description", length = 250)
+    private String description;
 
     @ManyToOne
     private Wallet wallet;
+
+    public void addWallet(Wallet wallet) {
+        this.wallet = wallet;
+        wallet.getTransactions().add(this);
+    }
+
+    public void deleteWallet(Wallet wallet) {
+        this.wallet = null;
+        wallet.getTransactions().remove(this);
+    }
 }

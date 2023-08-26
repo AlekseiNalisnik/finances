@@ -3,33 +3,37 @@ package com.application.finances.controller;
 import com.application.finances.entity.Transaction;
 import com.application.finances.service.TransactionService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
 @RestController
-@RequestMapping("/api/finances/secured")
+@RequestMapping("/api/finances/secured/transactions")
 public class TransactionController {
     @Autowired
     private TransactionService transactionService;
 
-    @GetMapping("/transactions")
-    public List<Transaction> getTransactions() {
-        return transactionService.findAllTransactions();
+    @GetMapping("/{walletId}/list")
+    public ResponseEntity<List<Transaction>> getAllTransactionsInWallet(@PathVariable Long walletId) {
+        return ResponseEntity.ok(transactionService.findAllTransactionsInWallet(walletId));
     }
 
-    @GetMapping("/transaction/{id}")
-    public Transaction getTransaction(@PathVariable Long id) {
-        return transactionService.findTransactionById(id);
+    @DeleteMapping("/{walletId}/delete/{id}")
+    @ResponseStatus(HttpStatus.OK)
+    public void deleteTransaction(@PathVariable Long walletId, @PathVariable Long id) {
+        transactionService.deleteTransaction(walletId, id);
     }
 
-    @GetMapping("/transaction-delete/{id}")
-    public void deleteTransaction(@PathVariable Long id) {
-        transactionService.deleteTransaction(id);
+    @PostMapping("/{walletId}/create")
+    public ResponseEntity<Transaction> createTransaction(@PathVariable Long walletId, @RequestBody Transaction transaction) {
+        return ResponseEntity.ok(transactionService.createTransaction(walletId, transaction));
     }
 
-    @PostMapping("/transaction-create")
-    public void createTransaction(Transaction transaction) {
-        transactionService.createTransaction(transaction);
+    @PutMapping("/update")
+    @ResponseStatus(HttpStatus.OK)
+    public void updateTransaction(@RequestBody Transaction transaction) {
+        transactionService.updateTransaction(transaction);
     }
 }
