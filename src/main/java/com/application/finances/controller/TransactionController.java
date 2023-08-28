@@ -1,5 +1,6 @@
 package com.application.finances.controller;
 
+import com.application.finances.dto.TransactionDto;
 import com.application.finances.entity.Transaction;
 import com.application.finances.service.TransactionService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -27,8 +28,10 @@ public class TransactionController {
     }
 
     @PostMapping("/{walletId}/create")
-    public ResponseEntity<Transaction> createTransaction(@PathVariable Long walletId, @RequestBody Transaction transaction) {
-        return ResponseEntity.ok(transactionService.createTransaction(walletId, transaction));
+    public ResponseEntity<Transaction> createTransaction(
+            @PathVariable Long walletId,
+            @RequestBody TransactionDto transactionDto) {
+        return ResponseEntity.ok(transactionService.createTransaction(walletId, transactionDto));
     }
 
     @PutMapping("/update")

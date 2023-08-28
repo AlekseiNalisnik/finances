@@ -1,5 +1,6 @@
 package com.application.finances.service;
 
+import com.application.finances.dto.TransactionDto;
 import com.application.finances.entity.Transaction;
 import com.application.finances.entity.Wallet;
 import com.application.finances.repository.TransactionRepository;
@@ -16,15 +17,26 @@ public class TransactionService {
     private TransactionRepository transactionRepository;
     @Autowired
     private WalletRepository walletRepository;
+    @Autowired
+    private DictionaryService dictionaryService;
 
     public List<Transaction> findAllTransactionsInWallet(Long walletId) {
         return transactionRepository.findByWalletId(walletId);
     }
 
-    public Transaction createTransaction(Long walletId, Transaction transaction) {
+    public Transaction createTransaction(Long walletId, TransactionDto transactionDto) {
         var wallet = walletRepository.findById(walletId)
             .orElseThrow(() -> new EntityNotFoundException("Кошелёк не найден"));
+        var purpose = dictionaryService.findTransactionPurposeDictionaryById(transactionDto.getPurposeId())
+            .orElseThrow(() -> new EntityNotFoundException("Назначение транзакции не найдено"));
 
+        var transaction = new Transaction();
+        transaction.setPrice(transactionDto.getPrice());
+        transaction.setPaymentType(transactionDto.getPaymentType());
+        transaction.setDateCreated(transactionDto.getDateCreated());
+        transaction.setDescription(transactionDto.getDescription());
+        transaction.setPurchasePlace(transactionDto.getPurchasePlace());
+        transaction.setPurpose(purpose);
         transaction.addWallet(wallet);
 
         return transactionRepository.save(transaction);

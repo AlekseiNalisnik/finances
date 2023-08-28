@@ -2,6 +2,7 @@ package com.application.finances.entity;
 
 import com.application.finances.dictionaries.TransactionPurposeDictionary;
 import com.application.finances.enums.TransactionPaymentTypeEnum;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -28,9 +29,11 @@ public class Transaction {
     private TransactionPaymentTypeEnum paymentType;
 
     @Column(name = "dateCreated", nullable = false)
+    @Temporal(TemporalType.TIMESTAMP)
     private Date dateCreated;
 
     @ManyToOne
+    @JsonIgnore
     private TransactionPurposeDictionary purpose;
 
     @Column(name = "price", nullable = false)
@@ -40,6 +43,7 @@ public class Transaction {
     private String description;
 
     @ManyToOne
+    @JsonIgnore
     private Wallet wallet;
 
     public void addWallet(Wallet wallet) {

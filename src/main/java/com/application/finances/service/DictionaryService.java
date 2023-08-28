@@ -6,6 +6,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.Optional;
 
 @Service
 public class DictionaryService {
@@ -14,5 +15,9 @@ public class DictionaryService {
 
     public List<TransactionPurposeDictionary> findTransactionPurposeDictionary() {
         return dictionaryRepository.findTransactionPurposeDictionary();
+    }
+
+    public Optional<TransactionPurposeDictionary> findTransactionPurposeDictionaryById(Long id) {
+        return dictionaryRepository.findById(id);
     }
 }
