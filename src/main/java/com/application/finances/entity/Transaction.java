@@ -33,7 +33,6 @@ public class Transaction {
     private Date dateCreated;
 
     @ManyToOne
-    @JsonIgnore
     private TransactionPurposeDictionary purpose;
 
     @Column(name = "price", nullable = false)
