@@ -1,6 +1,7 @@
 package com.application.finances.service;
 
-import com.application.finances.dto.TransactionDto;
+import com.application.finances.dto.TransactionRequestDto;
+import com.application.finances.dto.TransactionsWithDateDto;
 import com.application.finances.entity.Transaction;
 import com.application.finances.entity.Wallet;
 import com.application.finances.repository.TransactionRepository;
@@ -10,6 +11,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.stream.Stream;
 
 @Service
 public class TransactionService {
@@ -21,21 +23,25 @@ public class TransactionService {
     private DictionaryService dictionaryService;
 
     public List<Transaction> findAllTransactionsInWallet(Long walletId) {
+//        TODO: возможно создать новый метод в репозитории findByWalletIdOrderedByDateCreated
+        List<Transaction> transactionsInWallet = transactionRepository.findByWalletId(walletId);
+        var transactionsWithDate = transactionsInWallet.stream().map(this::reorganizeTransactionsByDate);
+
         return transactionRepository.findByWalletId(walletId);
     }
 
-    public Transaction createTransaction(Long walletId, TransactionDto transactionDto) {
+    public Transaction createTransaction(Long walletId, TransactionRequestDto transactionRequestDto) {
         var wallet = walletRepository.findById(walletId)
             .orElseThrow(() -> new EntityNotFoundException("Кошелёк не найден"));
-        var purpose = dictionaryService.findTransactionPurposeDictionaryById(transactionDto.getPurposeId())
+        var purpose = dictionaryService.findTransactionPurposeDictionaryById(transactionRequestDto.getPurposeId())
             .orElseThrow(() -> new EntityNotFoundException("Назначение транзакции не найдено"));
 
         var transaction = new Transaction();
-        transaction.setPrice(transactionDto.getPrice());
-        transaction.setPaymentType(transactionDto.getPaymentType());
-        transaction.setDateCreated(transactionDto.getDateCreated());
-        transaction.setDescription(transactionDto.getDescription());
-        transaction.setPurchasePlace(transactionDto.getPurchasePlace());
+        transaction.setPrice(transactionRequestDto.getPrice());
+        transaction.setPaymentType(transactionRequestDto.getPaymentType());
+        transaction.setDateCreated(transactionRequestDto.getDateCreated());
+        transaction.setDescription(transactionRequestDto.getDescription());
+        transaction.setPurchasePlace(transactionRequestDto.getPurchasePlace());
         transaction.setPurpose(purpose);
         transaction.addWallet(wallet);
 
@@ -66,5 +72,11 @@ public class TransactionService {
         transaction.deleteWallet(wallet);
 
         transactionRepository.deleteById(transaction.getId());
+    }
+
+    private TransactionsWithDateDto reorganizeTransactionsByDate(Transaction transaction) {
+        return TransactionsWithDateDto.builder()
+
+            .build();
     }
 }

@@ -7,7 +7,7 @@ import java.math.BigDecimal;
 import java.sql.Timestamp;
 
 @Data
-public class TransactionDto {
+public class TransactionRequestDto extends PaginationDto {
     private String purchasePlace;
     private TransactionPaymentTypeEnum paymentType;
     private Timestamp dateCreated;
