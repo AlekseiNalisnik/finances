@@ -1,6 +1,8 @@
 package com.application.finances.controller;
 
+import com.application.finances.dto.PaginationDto;
 import com.application.finances.dto.TransactionRequestDto;
+import com.application.finances.dto.TransactionResponseDto;
 import com.application.finances.entity.Transaction;
 import com.application.finances.service.TransactionService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -8,7 +10,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.List;
+import java.util.Map;
 
 @RestController
 @RequestMapping("/api/finances/secured/transactions")
@@ -17,8 +19,15 @@ public class TransactionController {
     private TransactionService transactionService;
 
     @GetMapping("/{walletId}/list")
-    public ResponseEntity<List<Transaction>> getAllTransactionsInWallet(@PathVariable Long walletId) {
-        return ResponseEntity.ok(transactionService.findAllTransactionsInWallet(walletId));
+    public ResponseEntity<TransactionResponseDto> getAllTransactionsInWallet(
+            @PathVariable Long walletId,
+            @RequestParam Map<String, String> requestParam
+    ) {
+        var paginationDto = new PaginationDto();
+        paginationDto.setPageNumber(Integer.parseInt(requestParam.get("pageNumber")));
+        paginationDto.setPageSize(Integer.parseInt(requestParam.get("pageSize")));
+
+        return ResponseEntity.ok(transactionService.findAllTransactionsInWallet(walletId, paginationDto));
     }
 
     @DeleteMapping("/{walletId}/delete/{id}")
@@ -30,7 +39,8 @@ public class TransactionController {
     @PostMapping("/{walletId}/create")
     public ResponseEntity<Transaction> createTransaction(
             @PathVariable Long walletId,
-            @RequestBody TransactionRequestDto transactionRequestDto) {
+            @RequestBody TransactionRequestDto transactionRequestDto
+    ) {
         return ResponseEntity.ok(transactionService.createTransaction(walletId, transactionRequestDto));
     }
 

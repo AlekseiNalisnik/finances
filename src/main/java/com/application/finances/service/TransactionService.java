@@ -1,17 +1,19 @@
 package com.application.finances.service;
 
+import com.application.finances.dto.PaginationDto;
 import com.application.finances.dto.TransactionRequestDto;
-import com.application.finances.dto.TransactionsWithDateDto;
+import com.application.finances.dto.TransactionResponseDto;
 import com.application.finances.entity.Transaction;
 import com.application.finances.entity.Wallet;
 import com.application.finances.repository.TransactionRepository;
 import com.application.finances.repository.WalletRepository;
 import jakarta.persistence.EntityNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
-import java.util.stream.Stream;
 
 @Service
 public class TransactionService {
@@ -22,12 +24,15 @@ public class TransactionService {
     @Autowired
     private DictionaryService dictionaryService;
 
-    public List<Transaction> findAllTransactionsInWallet(Long walletId) {
-//        TODO: возможно создать новый метод в репозитории findByWalletIdOrderedByDateCreated
-        List<Transaction> transactionsInWallet = transactionRepository.findByWalletId(walletId);
-        var transactionsWithDate = transactionsInWallet.stream().map(this::reorganizeTransactionsByDate);
+    public TransactionResponseDto findAllTransactionsInWallet(Long walletId, PaginationDto paginationDto) {
+        Pageable pageRequest = PageRequest.of(paginationDto.getPageNumber(), paginationDto.getPageSize());
+        List<Transaction> transactionsInWallet = transactionRepository.findByWalletIdOrderByDateCreatedDesc(walletId, pageRequest);
+        long totalPages = transactionRepository.count();
 
-        return transactionRepository.findByWalletId(walletId);
+        return TransactionResponseDto.builder()
+            .transactions(transactionsInWallet)
+            .totalPages(totalPages)
+            .build();
     }
 
     public Transaction createTransaction(Long walletId, TransactionRequestDto transactionRequestDto) {
@@ -72,11 +77,5 @@ public class TransactionService {
         transaction.deleteWallet(wallet);
 
         transactionRepository.deleteById(transaction.getId());
-    }
-
-    private TransactionsWithDateDto reorganizeTransactionsByDate(Transaction transaction) {
-        return TransactionsWithDateDto.builder()
-
-            .build();
     }
 }
